@@ -1,0 +1,17 @@
+plugins { id 'java' }
+
+ext { lwjgl_version = '3.3.3' } // Default version
+
+dependencies {
+    implementation("org.lwjgl:lwjgl-nanovg:$lwjgl_version") {
+        exclude group: 'org.lwjgl', module: 'lwjgl'
+        exclude group: 'org.lwjgl', module: 'lwjgl-glfw'
+    }
+
+    def os = System.getProperty("os.name").toLowerCase()
+    def native = os.contains('windows') ? 'natives-windows' :
+            os.contains('linux') ? 'natives-linux' :
+                    os.contains('mac') ? 'natives-macos' :
+    throw new GradleException("Unsupported OS: $os")
+    runtimeOnly "org.lwjgl:lwjgl-nanovg:$lwjgl_version:$native"
+}

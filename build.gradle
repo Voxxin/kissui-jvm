@@ -1,0 +1,31 @@
+// Root build.gradle
+plugins {
+    id 'java'
+}
+
+allprojects { // Applies to root + all subprojects
+    group = 'cat.ella'
+    version = '1.0-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects { // Applies only to subprojects (like NanoVGImpl)
+    apply plugin: 'java'
+
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.10.0')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+// Root-specific dependencies (if any)
+dependencies {
+    implementation project(':NanoVGImpl')
+}
