@@ -24,6 +24,7 @@ public class KImage extends Component {
     }
 
 
+
     public enum ImageType {
         Raster,
         Vector,

@@ -1,0 +1,10 @@
+package cat.ella.kissui.data;
+
+public class FrameBuffer {
+    public final int width, height;
+
+    public FrameBuffer(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
+}
