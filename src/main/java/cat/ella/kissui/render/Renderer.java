@@ -1,6 +1,6 @@
 package cat.ella.kissui.render;
 
-import cat.ella.kissui.component.KImage;
+import cat.ella.kissui.data.KImage;
 import cat.ella.kissui.data.Font;
 import cat.ella.kissui.unit.Vector2;
 
@@ -24,7 +24,7 @@ public interface Renderer extends AutoCloseable{
 
     void scale(Float sx, Float sy, Float px, Float py);
 
-    void rotate(Double angle, Float px, Float py);
+    void rotate(Float angle, Float px, Float py);
 
     void skewX(Float angle, Float px, Float py);
 

@@ -1,6 +1,6 @@
 package cat.ella.kissui.render;
 
-import cat.ella.kissui.component.KImage;
+import cat.ella.kissui.data.KImage;
 import cat.ella.kissui.data.Font;
 import cat.ella.kissui.unit.Vector2;
 
@@ -98,9 +98,6 @@ public interface Renderer extends AutoCloseable{
     ) {
         image(image, x, y, width, height, colorMask, radiusArr[0], radiusArr[1], radiusArr[2], radiusArr[3]);
     }
-
-    //    fun rect(x: Float, y: Float, width: Float, height: Float, color: Color, radius: Float = 0f) =
-    //        rect(x, y, width, height, color, radius, radius, radius, radius)
 
     default void rect(
             Float x, Float y,

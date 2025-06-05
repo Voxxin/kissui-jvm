@@ -1,14 +1,17 @@
-package cat.ella.kissui.component;
+package cat.ella.kissui.data;
 
-import cat.ella.kissui.component.util.Component;
+import cat.ella.kissui.component.Component;
+import cat.ella.kissui.unit.Vector2;
 
 public class KImage extends Component {
 
     public KImage(String path) {
+        super(Vector2.Constants.of(0, 0), Vector2.Constants.of(0, 0));
 
     }
 
     public KImage(String path, ImageType type) {
+        super(Vector2.Constants.of(0, 0), Vector2.Constants.of(0, 0));
 
     }
 
@@ -22,7 +25,6 @@ public class KImage extends Component {
         };
 
     }
-
 
 
     public enum ImageType {

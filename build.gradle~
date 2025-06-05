@@ -12,12 +12,26 @@ allprojects { // Applies to root + all subprojects
     }
 }
 
+def lwjglModules = ["nanovg", "opengl", "stb", "glfw", null]
+def nativePlatforms = ["windows", "linux", "macos", "macos-arm64"]
+
 subprojects { // Applies only to subprojects (like NanoVGImpl)
     apply plugin: 'java'
 
     dependencies {
+        lwjglModules.each { module ->
+            def dep = module == null ? "org.lwjgl:lwjgl:${lwjgl_version}" : "org.lwjgl:lwjgl-${module}:${lwjgl_version}"
+            implementation dep
+            nativePlatforms.each { platform ->
+                runtimeOnly "${dep}:natives-${platform}"
+            }
+        }
+
+        implementation('org.apache.logging.log4j:log4j-core:2.24.3')
+
         testImplementation platform('org.junit:junit-bom:5.10.0')
         testImplementation 'org.junit.jupiter:junit-jupiter'
+        implementation 'org.jetbrains:annotations:24.0.0'
     }
 
     test {
@@ -27,11 +41,9 @@ subprojects { // Applies only to subprojects (like NanoVGImpl)
 
 // Root-specific dependencies (if any)
 dependencies {
-    implementation project(':NanoVGImpl')
+//    implementation project(':NanoVGImpl')
+    implementation('org.apache.logging.log4j:log4j-core:2.24.3')
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-}
-
-test {
-    useJUnitPlatform()
 }
