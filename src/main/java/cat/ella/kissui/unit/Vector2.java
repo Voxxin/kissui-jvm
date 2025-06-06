@@ -15,6 +15,9 @@ public record Vector2(Float x, Float y) {
     public boolean isNegative() {
         return x() < 0 && y() < 0;
     }
+    public boolean isPositive() {
+        return x() > 0 && y() > 0;
+    }
 
     public boolean isZero() {
         return x() == 0 && y() == 0;

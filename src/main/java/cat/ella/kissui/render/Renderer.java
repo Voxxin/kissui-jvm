@@ -57,7 +57,7 @@ public interface Renderer extends AutoCloseable{
             KImage image,
             Float x, Float y,
             Float width, Float height,
-            int colorMask,
+            KColor color,
             Float bottomLeftRadius, Float topLeftRadius,
             Float topRightRadius, Float bottomRightRadius
     );
@@ -85,9 +85,24 @@ public interface Renderer extends AutoCloseable{
             Float x, Float y,
             Float width, Float height,
             Float radius,
-            int colorMask
+            KColor color
     ) {
-        image(image, x, y, width, height, colorMask, radius, radius, radius, radius);
+        image(image, x, y, width, height, color, radius, radius, radius, radius);
+    }
+
+    default void image(
+            KImage image,
+            Float x, Float y,
+            Float width, Float height,
+            Double radius,
+            KColor color
+    ) {
+        if (radius >= 100) throw new IllegalArgumentException("Radius must be less than 100");
+        if (radius <= 0) throw new IllegalArgumentException("Radius must be greater than 0");
+
+        float xRad = (width * radius.floatValue() / 100);
+        float yRad = (height * radius.floatValue() / 100);
+        image(image, x, y, width, height, color, xRad, yRad, xRad, yRad);
     }
 
     default void image(
@@ -95,9 +110,9 @@ public interface Renderer extends AutoCloseable{
             Float x, Float y,
             Float width, Float height,
             Float[] radiusArr,
-            int colorMask
+            KColor color
     ) {
-        image(image, x, y, width, height, colorMask, radiusArr[0], radiusArr[1], radiusArr[2], radiusArr[3]);
+        image(image, x, y, width, height, color, radiusArr[0], radiusArr[1], radiusArr[2], radiusArr[3]);
     }
 
     default void rect(
