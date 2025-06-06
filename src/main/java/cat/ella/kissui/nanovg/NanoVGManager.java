@@ -1,5 +1,7 @@
 package cat.ella.kissui.nanovg;
 
+import cat.ella.kissui.color.Colors;
+import cat.ella.kissui.color.KColor;
 import cat.ella.kissui.data.Font;
 import cat.ella.kissui.data.KImage;
 import cat.ella.kissui.render.Renderer;
@@ -7,15 +9,22 @@ import cat.ella.kissui.unit.Vector2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.nanovg.*;
+import org.lwjgl.system.MemoryUtil;
 
 import java.awt.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cat.ella.kissui.util.MathHelper.fti;
+import static org.lwjgl.nanovg.NanoVG.*;
+
 public class NanoVGManager implements Renderer {
     public final static Logger LOGGER = LogManager.getLogger("KISSUI/NVGRenderer");
+    private ByteBuffer BUFFER = MemoryUtil.memAlloc(3).put((byte) 112).put((byte) 120).put((byte) 0).flip();
 
     public Long VG = 0L;
     public Long RASTER = 0L;
@@ -23,9 +32,9 @@ public class NanoVGManager implements Renderer {
     private final ArrayList<Runnable> queue = new ArrayList<>();
     private final Map<Font, Integer> fontHandles = new HashMap<>();
     private final Map<KImage, Integer> imageHandles = new HashMap<>();
+    private final NVGColor nvgColor = NVGColor.calloc();
+
     private int nextFontId = 0;
-    private Font font;
-    private NVGPaint imagePaint;
 
     @Override
     public void init() {
@@ -124,29 +133,27 @@ public class NanoVGManager implements Renderer {
     }
 
     @Override
-    public void text(Font font, Float x, Float y, String text, Color color, Float size) {
-        int fontHandle = fontHandles.computeIfAbsent(font, f -> {
-            String fontName = "font" + nextFontId++;
-            return NanoVG.nvgCreateFontMem(VG, fontName, ByteBuffer.wrap(font.path().getBytes()), false);
-        });
-        if (fontHandle == -1) return;
+    public void text(Font font, Float x, Float y, String text, KColor color, Float size) {
+        if (color.isTransparent()) return;
 
         NanoVG.nvgFontSize(VG, size);
-        NanoVG.nvgFontFaceId(VG, fontHandle);
-        NanoVG.nvgFillColor(VG, toNVGColor(color));
+        NanoVG.nvgFontFaceId(VG, getFont(font));
+        nvgTextAlign(VG, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        color(color);
+        nvgFillColor(VG, nvgColor);
         NanoVG.nvgText(VG, x, y, text);
     }
 
     @Override
     public Vector2 textBounds(Font font, String text, Float size) {
         int fontHandle = fontHandles.getOrDefault(font, -1);
-        if (fontHandle == -1) return Vector2.Constants.of(0, 0);
+        if (fontHandle == -1) return new Vector2(0F, 0F);
 
         NanoVG.nvgFontSize(VG, size);
         NanoVG.nvgFontFaceId(VG, fontHandle);
         float[] bounds = new float[4];
         NanoVG.nvgTextBounds(VG, 0, 0, text, bounds);
-        return Vector2.Constants.of(bounds[2] - bounds[0], bounds[3] - bounds[1]);
+        return new Vector2(bounds[2] - bounds[0], bounds[3] - bounds[1]);
     }
 
     @Override
@@ -154,7 +161,7 @@ public class NanoVGManager implements Renderer {
         if (imageHandles.containsKey(image)) return;
         int flags = 0;
 //        int handle = NanoVG.nvgCreateImageRGBA(VG, (int) size.x(), (int) size.y(), flags, image.getData());
-        int handle = NanoVG.nvgCreateImageRGBA(VG, (int) size.x(), (int) size.y(), flags, null);
+        int handle = NanoVG.nvgCreateImageRGBA(VG, fti(size.x()), fti(size.y()), flags, null);
         imageHandles.put(image, handle);
     }
 
@@ -184,7 +191,7 @@ public class NanoVGManager implements Renderer {
     }
 
     @Override
-    public void rect(Float x, Float y, Float width, Float height, int colorMask, Float bottomLeftRadius, Float topLeftRadius, Float topRightRadius, Float bottomRightRadius) {
+    public void rect(Float x, Float y, Float width, Float height, KColor color, Float bottomLeftRadius, Float topLeftRadius, Float topRightRadius, Float bottomRightRadius) {
         NanoVG.nvgBeginPath(VG);
         if (bottomLeftRadius > 0 || topLeftRadius > 0 || topRightRadius > 0 || bottomRightRadius > 0) {
             NanoVG.nvgRoundedRectVarying(VG, x, y, width, height,
@@ -192,12 +199,14 @@ public class NanoVGManager implements Renderer {
         } else {
             NanoVG.nvgRect(VG, x, y, width, height);
         }
-        NanoVG.nvgFillColor(VG, toNVGColor(colorMask));
+
+        color(color);
+        NanoVG.nvgFillColor(VG, nvgColor);
         NanoVG.nvgFill(VG);
     }
 
     @Override
-    public void hollowRect(Float x, Float y, Float width, Float height, Color color, int lineWidth, Float bottomLeftRadius, Float topLeftRadius, Float topRightRadius, Float bottomRightRadius) {
+    public void hollowRect(Float x, Float y, Float width, Float height, KColor color, int lineWidth, Float bottomLeftRadius, Float topLeftRadius, Float topRightRadius, Float bottomRightRadius) {
         NanoVG.nvgBeginPath(VG);
         if (bottomLeftRadius > 0 || topLeftRadius > 0 || topRightRadius > 0 || bottomRightRadius > 0) {
             NanoVG.nvgRoundedRectVarying(VG, x, y, width, height,
@@ -205,17 +214,20 @@ public class NanoVGManager implements Renderer {
         } else {
             NanoVG.nvgRect(VG, x, y, width, height);
         }
-        NanoVG.nvgStrokeColor(VG, toNVGColor(color));
+
+        color(color);
+        NanoVG.nvgStrokeColor(VG, this.nvgColor);
         NanoVG.nvgStrokeWidth(VG, lineWidth);
         NanoVG.nvgStroke(VG);
     }
 
     @Override
-    public void line(Float x1, Float y1, Float x2, Float y2, Color color, Float width) {
+    public void line(Float x1, Float y1, Float x2, Float y2, KColor color, Float width) {
         NanoVG.nvgBeginPath(VG);
         NanoVG.nvgMoveTo(VG, x1, y1);
         NanoVG.nvgLineTo(VG, x2, y2);
-        NanoVG.nvgStrokeColor(VG, toNVGColor(color));
+        color(color);
+        NanoVG.nvgStrokeColor(VG, this.nvgColor);
         NanoVG.nvgStrokeWidth(VG, width);
         NanoVG.nvgStroke(VG);
     }
@@ -226,8 +238,8 @@ public class NanoVGManager implements Renderer {
         NVGPaint shadowPaint = NanoVG.nvgBoxGradient(VG,
                 x - spread, y - spread, width + 2*spread, height + 2*spread,
                 radius, blur,
-                toNVGColor(new Color(0, 0, 0, 128)),
-                toNVGColor(new Color(0, 0, 0, 0)),
+                this.nvgColor,
+                this.nvgColor,
                 base);
 
         NanoVG.nvgBeginPath(VG);
@@ -265,36 +277,55 @@ public class NanoVGManager implements Renderer {
             NanoSVG.nsvgDeleteRasterizer(RASTER);
             RASTER = 0L;
         }
+        if (nvgColor != null) {
+            nvgColor.free();
+        }
     }
 
-    private static NVGColor toNVGColor(Color color) {
-        NVGColor result = NVGColor.create();
-        return NanoVG.nvgRGBAf(
-                color.getRed() / 255.0f,
-                color.getGreen() / 255.0f,
-                color.getBlue() / 255.0f,
-                color.getAlpha() / 255.0f,
-                result
-        );
+    private int getFont(Font font) {
+        if (fontHandles.containsKey(font)) {
+            return fontHandles.get(font);
+        }
+
+        // Create font handle synchronously
+        String fontName = "font" + nextFontId++;
+        ByteBuffer fontData = null;
+        try (InputStream is = getClass().getResourceAsStream(font.path())) {
+            if (is == null) {
+                throw new RuntimeException("Font resource not found: " + font.path());
+            }
+            byte[] bytes = is.readAllBytes();
+            fontData = MemoryUtil.memAlloc(bytes.length);
+            fontData.put(bytes);
+            fontData.flip();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        int handle = nvgCreateFontMem(VG, fontName, fontData, true);
+
+        if (handle == -1) {
+            LOGGER.error("Failed to create font: " + font);
+            MemoryUtil.memFree(fontData);
+            return -1;
+        }
+
+        fontHandles.put(font, handle);
+        return handle;
     }
 
-    private static NVGColor toNVGColor(int r, int g, int b, int a) {
-        NVGColor result = NVGColor.create();
-        return NanoVG.nvgRGBAf(
-                r / 255.0f,
-                g / 255.0f,
-                b / 255.0f,
-                a / 255.0f,
-                result
-        );
+
+    private void color(KColor color) {
+        nvgColor.r(color.getRed() / 255f);
+        nvgColor.g(color.getGreen() / 255f);
+        nvgColor.b(color.getBlue() / 255f);
+        nvgColor.a(color.getAlpha() / 255f);
     }
 
-
-    private static NVGColor toNVGColor(int argb) {
-        int a = (argb >> 24) & 0xFF;
-        int r = (argb >> 16) & 0xFF;
-        int g = (argb >> 8) & 0xFF;
-        int b = argb & 0xFF;
-        return toNVGColor((byte) r, (byte) g, (byte) b, (byte) a);
+    private void color(int colorMask) {
+        nvgColor.r((colorMask & 0xFF) / 255f);
+        nvgColor.g((colorMask >> 8 & 0xFF) / 255f);
+        nvgColor.b((colorMask >> 16 & 0xFF) / 255f);
+        nvgColor.a((colorMask >> 24 & 0xFF) / 255f);
     }
 }

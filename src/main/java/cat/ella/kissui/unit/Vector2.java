@@ -1,13 +1,15 @@
 package cat.ella.kissui.unit;
 
-public record Vector2(long value) {
+public record Vector2(Float x, Float y) {
+    public static final Vector2 ZERO = new Vector2(0F, 0F);
+    public static final Vector2 ONE = new Vector2(1F, 1F);
 
-    public float x() {
-        return Float.intBitsToFloat((int)(value >>> 32));
+    public Float x() {
+        return x;
     }
 
-    public float y() {
-        return Float.intBitsToFloat((int)(value & 0xFFFFFFFFL));
+    public Float y() {
+        return y;
     }
 
     public boolean isNegative() {
@@ -30,16 +32,6 @@ public record Vector2(long value) {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Vector2 other)) return false;
-        return this.value == other.value;
-    }
-
-    public static class Constants {
-        public static final Vector2 ZERO = of(0F, 0F);
-        public static final Vector2 ONE = of(1F, 1F);
-
-        public static Vector2 of(float x, float y) {
-            long packed = ((long) Float.floatToRawIntBits(x) << 32) | (Float.floatToRawIntBits(y) & 0xFFFFFFFFL);
-            return new Vector2(packed);
-        }
+        return this.x.equals(other.x) && this.y.equals(other.y);
     }
 }

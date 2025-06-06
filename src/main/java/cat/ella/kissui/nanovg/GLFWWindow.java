@@ -3,6 +3,7 @@ package cat.ella.kissui.nanovg;
 import cat.ella.kissui.KissUI;
 import cat.ella.kissui.render.Window;
 import cat.ella.kissui.unit.Vector2;
+import cat.ella.kissui.util.MathHelper;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -24,8 +25,8 @@ public class GLFWWindow extends Window {
 
     public Long handle;
     public Double fpsCap = 0.0;
-    public int height;
-    public int width;
+    public float height;
+    public float width;
 
     public GLFWWindow(String title, int height, int width) {
         this(title, height, width, false, true, true);
@@ -82,7 +83,7 @@ public class GLFWWindow extends Window {
 
     @Override
     public Window open(KissUI UI) {
-        UI.window = this;
+        UI.setWindow(this);
         glfwSetTime(0.0);
         glfwSwapInterval(1);
 
@@ -108,17 +109,17 @@ public class GLFWWindow extends Window {
             this.height = h;
         }
 
-        Vector2 min = Vector2.Constants.of(100F, 100F);
-        Vector2 max = Vector2.Constants.of(-1F, -1F);
-        glfwSetWindowSizeLimits(handle, (int) min.x(), (int) min.y(), (int) max.x(), (int) max.y());
+        Vector2 min = new Vector2(100F, 100F);
+        Vector2 max = new Vector2(-1F, -1F);
+        glfwSetWindowSizeLimits(handle, MathHelper.fti(min.x()), MathHelper.fti(min.y()), MathHelper.fti(max.x()), MathHelper.fti(max.y()));
 
-        Vector2 aspectRatio = Vector2.Constants.of(-1F, -1F);
+        Vector2 aspectRatio = new Vector2(-1F, -1F);
         if (aspectRatio.x() == 0f || aspectRatio.y() == 0f) {
-            Vector2 ratio = Vector2.Constants.of(width, height);
+            Vector2 ratio = new Vector2(width, height);
             NanoVGManager.LOGGER.info("Inferred aspect ratio: " + ratio.x() + ":" + ratio.y());
             aspectRatio = ratio;
         }
-        glfwSetWindowAspectRatio(handle, (int) aspectRatio.x(), (int) aspectRatio.y());
+        glfwSetWindowAspectRatio(handle, MathHelper.fti(aspectRatio.x()), MathHelper.fti(aspectRatio.y()));
 
         double[] time = {glfwGetTime()};
         fpsCap = 30.0;
@@ -128,7 +129,7 @@ public class GLFWWindow extends Window {
             int pixelRatio = 1;
 
             int height = (int) (size.y() * pixelRatio);
-            GL20C.glViewport(0, offset + (this.height - height), (int) (size.x() * pixelRatio), height);
+            GL20C.glViewport(0, MathHelper.fti(offset + (this.height - height)), (int) (size.x() * pixelRatio), height);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glClearColor(0f, 0f, 0f, 0f);
 

@@ -1,25 +1,35 @@
 package cat.ella.kissui;
 
+import cat.ella.kissui.color.KColor;
 import cat.ella.kissui.component.Component;
 import cat.ella.kissui.component.Drawn;
+import cat.ella.kissui.data.Font;
+import cat.ella.kissui.data.FontFamily;
+import cat.ella.kissui.input.InputManager;
+import cat.ella.kissui.nanovg.GLFWWindow;
 import cat.ella.kissui.render.Renderer;
 import cat.ella.kissui.render.Window;
 import cat.ella.kissui.unit.Vector2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
+import java.util.List;
+
 public class KissUI {
-    public Window window = null;
+    protected Window window = null;
     public Logger LOGGER = LogManager.getLogger("KISSUI/");
     public final Renderer renderer;
     public final Component[] components;
-    public Vector2 size = Vector2.Constants.of(0, 0);
+    public Vector2 size = new Vector2(0F, 0F);
     public Drawn main;
+    public final InputManager inputManager = new InputManager();
+    public final FontFamily defaultFont = new FontFamily("JetBrainsMono", "assets/kissui/fonts/JetBrainsMono");
 
     public KissUI(Component[] components, Renderer renderer) {
         this.components = components;
         this.renderer = renderer;
-        this.main = new Drawn(components, Vector2.Constants.of(0, 0), Vector2.Constants.of(0, 0), Vector2.Constants.of(0, 0), false);
+        this.main = new Drawn(components, new Vector2(0f, 0f), new Vector2(0F, 0F), new Vector2(0F, 0F), false);
         renderer.init();
     }
 
@@ -33,7 +43,7 @@ public class KissUI {
             return;
         }
 
-        this.size = Vector2.Constants.of(newWidth, newHeight);
+        this.size = new Vector2(newWidth, newHeight);
 //        main.setSize(size);
     }
 
@@ -42,12 +52,18 @@ public class KissUI {
 
         window.preRender();
         renderer.beginFrame(size.x(), size.y(), 1.0f);
-//        main.render(renderer);
+        
+        main.render(renderer);
+
         renderer.endFrame();
         window.postRender();
     }
 
     public void cleanup() {
         renderer.cleanup();
+    }
+
+    public void setWindow(Window window) {
+        this.window = window;
     }
 }

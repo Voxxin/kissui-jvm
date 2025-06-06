@@ -49,7 +49,6 @@ dependencies {
         }
     }
 
-//    implementation project(':NanoVGImpl')
     implementation('org.apache.logging.log4j:log4j-core:2.24.3')
 
     testImplementation platform('org.junit:junit-bom:5.10.0')

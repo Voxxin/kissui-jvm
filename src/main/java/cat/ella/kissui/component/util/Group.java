@@ -4,9 +4,9 @@ import cat.ella.kissui.component.Component;
 import cat.ella.kissui.component.Drawn;
 import cat.ella.kissui.unit.Vector2;
 
-public class Div extends Drawn {
+public class Group extends Drawn {
 
-    public Div(Component[] children, Vector2 at, Vector2 size, Vector2 visibleSize){
+    public Group(Component[] children, Vector2 at, Vector2 size, Vector2 visibleSize){
         super(children, at, size, visibleSize, false);
     };
 }

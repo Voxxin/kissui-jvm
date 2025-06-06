@@ -101,4 +101,7 @@ public class Drawn extends Scrollable implements Cloneable {
             throw new AssertionError();
         }
     }
+
+    public void render(Renderer renderer) {
+    }
 }

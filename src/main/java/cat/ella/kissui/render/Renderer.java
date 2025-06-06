@@ -1,5 +1,6 @@
 package cat.ella.kissui.render;
 
+import cat.ella.kissui.color.KColor;
 import cat.ella.kissui.data.KImage;
 import cat.ella.kissui.data.Font;
 import cat.ella.kissui.unit.Vector2;
@@ -44,7 +45,7 @@ public interface Renderer extends AutoCloseable{
             Font font,
             Float x, Float y,
             String text,
-            Color color,
+            KColor color,
             Float size
     );
 
@@ -64,7 +65,7 @@ public interface Renderer extends AutoCloseable{
     void rect(
             Float x, Float y,
             Float width, Float height,
-            int colorMask,
+            KColor color,
             Float bottomLeftRadius, Float topLeftRadius,
             Float topRightRadius, Float bottomRightRadius
     );
@@ -72,7 +73,7 @@ public interface Renderer extends AutoCloseable{
     void hollowRect(
             Float x, Float y,
             Float width, Float height,
-            Color color,
+            KColor color,
             int lineWidth,
             Float bottomLeftRadius, Float topLeftRadius,
             Float topRightRadius, Float bottomRightRadius
@@ -102,23 +103,23 @@ public interface Renderer extends AutoCloseable{
     default void rect(
             Float x, Float y,
             Float width, Float height,
-            Color color,
+            KColor color,
             Float radius) {
-        rect(x, y, width, height, color.getRGB(), radius, radius, radius, radius);
+        rect(x, y, width, height, color, radius, radius, radius, radius);
     }
 
     default void rect(
             Float x, Float y,
             Float width, Float height,
-            Color color,
+            KColor color,
             Float[] radiusArr) {
-        rect(x, y, width, height, color.getRGB(), radiusArr[0], radiusArr[1], radiusArr[2], radiusArr[3]);
+        rect(x, y, width, height, color, radiusArr[0], radiusArr[1], radiusArr[2], radiusArr[3]);
     }
 
     default void hollowRect(
             Float x, Float y,
             Float width, Float height,
-            Color color,
+            KColor color,
             int lineWidth,
             Float radius
     ) {
@@ -128,7 +129,7 @@ public interface Renderer extends AutoCloseable{
     default void hollowRect(
             Float x, Float y,
             Float width, Float height,
-            Color color,
+            KColor color,
             int lineWidth,
             Float[] radiusArr
     ) {
@@ -138,7 +139,7 @@ public interface Renderer extends AutoCloseable{
     void line(
             Float x1, Float y1,
             Float x2, Float y2,
-            Color color,
+            KColor color,
             Float width
     );
 

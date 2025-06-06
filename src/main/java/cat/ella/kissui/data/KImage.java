@@ -6,12 +6,12 @@ import cat.ella.kissui.unit.Vector2;
 public class KImage extends Component {
 
     public KImage(String path) {
-        super(Vector2.Constants.of(0, 0), Vector2.Constants.of(0, 0));
+        super(new Vector2(0F, 0F), new Vector2(0F, 0F));
 
     }
 
     public KImage(String path, ImageType type) {
-        super(Vector2.Constants.of(0, 0), Vector2.Constants.of(0, 0));
+        super(new Vector2(0F, 0F), new Vector2(0F, 0F));
 
     }
 

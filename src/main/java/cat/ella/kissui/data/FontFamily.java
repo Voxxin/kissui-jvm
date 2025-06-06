@@ -9,8 +9,12 @@ public class FontFamily {
 
   public FontFamily(String name, String path) {
 	 this.name = name;
-	 this.path = URI.create((path.startsWith("/") ? "" : "/") + path);
+	 this.path = URI.create((path.startsWith("/") ? "" : "/") + path + (path.endsWith("/") ? "" : "/"));
   }
+
+	public Font get(Font.Weight weight) {
+		return get(weight, false);
+	}
 
   public Font get(Font.Weight weight, boolean italic) {
 	 return switch (weight) {
@@ -80,8 +84,7 @@ public class FontFamily {
 	 if (url != null) {
 		return new Font(filePath, this, italic, weight);
 	 } else {
-		// todo: add a default font
-		return null;
+		return new Font("/assets/kissui/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", this, italic, weight);
 	 }
   }
 }
