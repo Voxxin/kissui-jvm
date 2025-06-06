@@ -10,7 +10,7 @@ public abstract class Window {
         this(height, width, 1);
     }
 
-    public Window(int width, int height, float aspectRatio) {
+    public Window(int height, int width, float aspectRatio) {
 
     }
 
